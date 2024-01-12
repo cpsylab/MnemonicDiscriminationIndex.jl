@@ -43,8 +43,12 @@ function fit_model(data_x, data_y; model=logistic5, lower=Float64[0,0,0,0,0], up
     while true
         try
             return curve_fit(model,data_x,data_y, _p_init(rng); lower, upper, kwargs...)
-        catch
-            continue
+        catch e
+            if e isa InexactError
+                continue
+            else
+                rethrow()
+            end
         end
     end
 end
