@@ -37,13 +37,13 @@ struct AUC{T}
 end
 
 """
-  `get_aucs(model, params; [domain=(0,1)])`
+  `get_auc(model=logistic5, params; [domain=(0,1)])`
 
   Returns an `AUC` struct containing the `auc`, the `startval`, and the `endval`.
 
   This has not been tested with a different `domain`. Change it at your own risk!
 """
-function get_aucs(model, params; domain=(0,1))
+function get_auc(model, params; domain=(0,1))
     startval = model(domain[1], params)
     endval = model(domain[2], params)
     auc, = quadgk((x) -> endval - model(x, params), domain[1], domain[2])
@@ -65,7 +65,7 @@ function get_MD_indices(auc::AUC)
     return MDIndices(Δ, auc.auc/Δ)
 end
 
-export fit_model, get_aucs, get_MD_indices
+export fit_model, get_auc, get_MD_indices
 
 include("logistic5.jl")
 
