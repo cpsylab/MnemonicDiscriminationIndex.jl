@@ -1,4 +1,5 @@
 using MDI
+using StableRNGs
 using Test
 
 @testset "MDI.jl" begin
@@ -26,7 +27,7 @@ using Test
     data_y = [0.050000000000000044, 0.050287907869481896, 0.05912258473234089,
             0.11493467933491697, 0.27212581344902387, 0.5, 0.6919961471424639,
             0.8088952438290186, 0.8716421029170033, 0.9047640492810499, 0.9227272727272727]
-    model_params = fit_model(data_x, data_y; seed=123).param
+    model_params = fit_model(data_x, data_y; rng=StableRNG(123)).param
     @test model_params ≈ [0.050000000000001696, 5.000000000000355, 0.49999999999996286, 0.950000000000014, 0.9999999999997183]
 
     auc, auc_scaled, startval, endval = get_aucs(model_params)

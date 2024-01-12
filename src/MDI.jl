@@ -1,10 +1,9 @@
 module MDI
 
-using Distributions
+using Distributions: Uniform
 using LsqFit
 using QuadGK
 using Random
-using StableRNGs
 
 """
   `logistic5(data, params)`
@@ -36,9 +35,7 @@ end
 
   The `kwargs` get passed on to `curve_fit`.
 """
-function fit_model(data_x, data_y; model=logistic5, lower=Float64[0,0,0,0,0], upper=Float64[1,Inf,1,1,Inf], seed::Union{Nothing,Int}=nothing, kwargs...)
-    rng = isnothing(seed) ? Random.default_rng() : StableRNG(seed)
-
+function fit_model(data_x, data_y; model=logistic5, lower=Float64[0,0,0,0,0], upper=Float64[1,Inf,1,1,Inf], rng=Random.default_rng(), kwargs...)
     # Try again with different initial parameter values until curve_fit returns
     while true
         try
@@ -75,7 +72,6 @@ function get_aucs(params; model=logistic5, domain=(0,1))
     auc_scaled = auc/(endval-startval)
     return auc, auc_scaled, startval, endval
 end
-
 
 export logistic5, fit_model, get_aucs
 
