@@ -18,7 +18,7 @@ using StableRNGs
 """
   `_p_init(rng)`
 
-  Randomly initialize the initial logistic5 parameters to help prevent non-convergence
+  Randomly initialize the initial logistic5 parameters to help prevent non-convergence.
 """
 function _p_init(rng)
     a = rand(rng, Uniform(0, 0.1))
@@ -33,6 +33,8 @@ end
   `fit_model(data_x, data_y; model=logistic5, lower=[0.,0,0,0,0], upper=[1.,Inf,1,1,Inf], seed::Union{Nothing,Int}=nothing, kwargs...)`
 
   Wrapper around `LsqFit`'s `curve_fit` that tries fitting the curve to the `model` until it succeeds.
+
+  The `kwargs` get passed on to `curve_fit`.
 """
 function fit_model(data_x, data_y; model=logistic5, lower=Float64[0,0,0,0,0], upper=Float64[1,Inf,1,1,Inf], seed::Union{Nothing,Int}=nothing, kwargs...)
     rng = isnothing(seed) ? Random.default_rng() : StableRNG(seed)
@@ -50,7 +52,7 @@ end
 """
   `_get_area_diff(endval, params; model=logistic5)`
 
-  Generates the function to be used to calculate the area difference
+  Generates the function to be used to calculate the area difference.
 """
 function _get_area_diff(endval, params; model=logistic5)
     return area_diff(x) = endval - model(x, params)
@@ -59,7 +61,7 @@ end
 """
   `get_aucs(params; [model=logistic5], [domain=(0,1)])`
 
-  Returns the auc, the properly scaled auc, and the start and end values of the `model` given the `params`
+  Returns the auc, the properly scaled auc, and the start and end values of the `model` given the `params`.
 """
 function get_aucs(params; model=logistic5, domain=(0,1))
     startval = model(domain[1], params)
