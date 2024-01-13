@@ -2,6 +2,7 @@ module MDI
 
 using Distributions: Uniform
 using LsqFit: curve_fit
+using PrecompileTools: @setup_workload, @compile_workload
 using QuadGK: quadgk
 using Random
 
@@ -70,5 +71,16 @@ export fit_model, get_auc, get_MD_indices
 include("logistic5.jl")
 
 export logistic5, fit_logistic5
+
+@setup_workload begin
+    old_or_new = [0,0,0,1,0,1,1,1]
+    distance = 0:(1/7):1
+
+    @compile_workload begin
+        logistic5_params = fit_logistic5(distance, old_or_new).param
+        auc = get_auc(logistic5_params)
+        mdis = get_MD_indices(auc)
+    end
+end
 
 end # module MDI
