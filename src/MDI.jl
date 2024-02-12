@@ -19,7 +19,7 @@ function fit_model(model, data_x, data_y, p0; kwargs...)
     # Try again with different initial parameter values until curve_fit returns
     while true
         try
-            return curve_fit(model,data_x,data_y, p0(); kwargs...)
+            return curve_fit(model, data_x, data_y, p0(); kwargs...)
         catch e
             if e isa InexactError
                 continue
@@ -34,7 +34,7 @@ struct AUC{T}
     auc::T
     startval::T
     endval::T
-    domain
+    domain::Any
 end
 
 """
@@ -44,7 +44,7 @@ end
 
   This has not been tested with a different `domain`. Change it at your own risk!
 """
-function get_auc(model, params; domain=(0,1))
+function get_auc(model, params; domain=(0, 1))
     startval = model(domain[1], params)
     endval = model(domain[2], params)
     auc, = quadgk((x) -> endval - model(x, params), domain[1], domain[2])
@@ -63,7 +63,7 @@ end
 """
 function get_MD_indices(auc::AUC)
     Δ = auc.endval - auc.startval
-    return MDIndices(Δ, auc.auc/Δ)
+    return MDIndices(Δ, auc.auc / Δ)
 end
 
 export fit_model, get_auc, get_MD_indices
@@ -73,7 +73,7 @@ include("logistic5.jl")
 export logistic5, fit_logistic5
 
 @setup_workload begin
-    old_or_new = [0,0,0,1,0,1,1,1]
+    old_or_new = [0, 0, 0, 1, 0, 1, 1, 1]
     distance = 0:(1/7):1
 
     @compile_workload begin
