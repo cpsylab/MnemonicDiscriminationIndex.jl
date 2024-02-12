@@ -72,6 +72,7 @@ include("logistic5.jl")
 
 export logistic5, fit_logistic5
 
+## Precompilation
 @setup_workload begin
     old_or_new = [0, 0, 0, 1, 0, 1, 1, 1]
     distance = 0:(1/7):1
