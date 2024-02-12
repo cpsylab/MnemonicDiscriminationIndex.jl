@@ -43,13 +43,13 @@ julia> auc = get_auc(logistic5_params)
 MDI.AUC{Float64}(0.44583208733243396, 0.0, 0.9390919680940668, (0, 1))
 
 julia> mdis = get_MD_indices(auc)
-MDI.MDIndices{Float64}(0.9390919680940668, 0.4747480571442561)
+MDI.MDIndices{Float64}(0.9390919680940668, 0.5252519428557438)
 
 julia> mdis.Δ
 0.9390919680940668
 
 julia> mdis.λ
-0.4747480571442561
+0.5252519428557438
 ```
 
 To fit to a different function than `logistic5`, check out the docstrings for `fit_model` and `get_auc` by calling `?fit_model`, and `?get_auc` in the REPL.

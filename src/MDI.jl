@@ -59,11 +59,11 @@ end
 """
   `get_MD_indices(auc::AUC)`
 
-  Returns an `MDIndices` struct containing the Δ and λ indices of `auc`.
+  Returns an `MDIndices` struct containing the `Δ` and `λ` indices of `auc`.
 """
 function get_MD_indices(auc::AUC)
     Δ = auc.endval - auc.startval
-    return MDIndices(Δ, auc.auc / Δ)
+    return MDIndices(Δ, 1 - auc.auc / Δ)
 end
 
 export fit_model, get_auc, get_MD_indices

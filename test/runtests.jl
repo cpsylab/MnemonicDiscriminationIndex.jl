@@ -28,7 +28,7 @@ const rtol = 0.001
 
     quad_mdis = get_MD_indices(quad_auc)
     @test isapprox(quad_mdis.Δ, 0.49999999999999456; rtol)
-    @test isapprox(quad_mdis.λ, 0.6666666666666999; rtol)
+    @test isapprox(quad_mdis.λ, 0.33333333333330006; rtol)
 
     @testset "logistic5" begin
         @testset "logistic5" begin
@@ -117,7 +117,7 @@ const rtol = 0.001
 
             mdis = get_MD_indices(auc)
             @test isapprox(mdis.Δ, 0.8727272727272742; rtol)
-            @test isapprox(mdis.λ, 0.5119852153505808; rtol)
+            @test isapprox(mdis.λ, 0.48801478464941916; rtol)
         end
     end
 end
