@@ -21,7 +21,7 @@ function fit_model(model, data_x, data_y, p0; kwargs...)
         try
             return curve_fit(model, data_x, data_y, p0(); kwargs...)
         catch e
-            if e isa InexactError
+            if e isa DomainError || e isa ArgumentError || e isa InexactError
                 continue
             else
                 rethrow()
