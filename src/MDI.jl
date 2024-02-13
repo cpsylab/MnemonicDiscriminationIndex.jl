@@ -15,17 +15,26 @@ using Random
 
   The `kwargs` get passed on to `curve_fit`.
 """
-function fit_model(model, data_x, data_y, p0; kwargs...)
+function fit_model(model, data_x, data_y, p0; ntries=10000, kwargs...)
+    n_errs = 0
     # Try again with different initial parameter values until curve_fit returns
     while true
         try
             return curve_fit(model, data_x, data_y, p0(); kwargs...)
         catch e
+            # These errors can happen through bad luck of the initial parameters
             if e isa DomainError || e isa ArgumentError || e isa InexactError
-                continue
-            else
-                rethrow()
+                n_errs += 1
+
+                # Keep going as long as the error hasn't happened too many times
+                n_errs < ntries && continue
+
+                # If one of these errors has been thrown too many times,
+                #  it's probably a user-caused ArgumentError
+                @error "curve_fit has errored $(n_errs) times. Giving up."
             end
+            # Always rethrow any other errors
+            rethrow()
         end
     end
 end
