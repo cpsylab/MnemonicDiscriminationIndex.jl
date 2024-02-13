@@ -1,0 +1,10 @@
+always_for_in = true
+whitespace_typedefs = true
+always_use_return = true
+whitespace_in_kwargs = false
+normalize_line_endings = "unix"
+separate_kwargs_with_semicolon = true
+align_assignment = true
+align_pair_arrow = true
+align_struct_field = true
+margin=92

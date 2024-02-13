@@ -1,78 +1,96 @@
 module MDI
 
-using Distributions
-using LsqFit
-using QuadGK
+using Distributions: Uniform
+using LsqFit: curve_fit
+using PrecompileTools: @setup_workload, @compile_workload
+using QuadGK: quadgk
 using Random
-using StableRNGs
 
 """
-  `logistic5(data, params)`
-
-  Calculates the value(s) at the point(s) in `data` for the logistic5 curve with `params`.
-
-  See: Cardillo G. (2012) Five parameters logistic regression - There and back again http://www.mathworks.com/matlabcentral/fileexchange/38043
-"""
-@. logistic5(data,params) = params[4]+(params[1]-params[4])/((1+(data/params[3])^params[2])^params[5])
-
-"""
-  `_p_init(rng)`
-
-  Randomly initialize the initial logistic5 parameters to help prevent non-convergence.
-"""
-function _p_init(rng)
-    a = rand(rng, Uniform(0, 0.1))
-    b = rand(rng, Uniform(1, 10))
-    c = rand(rng, Uniform(0.1, 0.7))
-    d = rand(rng, Uniform(0.9, 1))
-    e = rand(rng, Uniform(0.5, 1.5))
-    return [a, b, c, d, e]
-end
-
-"""
-  `fit_model(data_x, data_y; model=logistic5, lower=[0.,0,0,0,0], upper=[1.,Inf,1,1,Inf], seed::Union{Nothing,Int}=nothing, kwargs...)`
+  `fit_model(model, data_x, data_y, p0; kwargs...)`
 
   Wrapper around `LsqFit`'s `curve_fit` that tries fitting the curve to the `model` until it succeeds.
 
+  `p0` is a function that generates initial parameters relevant for the passed-in `model`.
+
   The `kwargs` get passed on to `curve_fit`.
 """
-function fit_model(data_x, data_y; model=logistic5, lower=Float64[0,0,0,0,0], upper=Float64[1,Inf,1,1,Inf], seed::Union{Nothing,Int}=nothing, kwargs...)
-    rng = isnothing(seed) ? Random.default_rng() : StableRNG(seed)
-
+function fit_model(model, data_x, data_y, p0; ntries=10000, kwargs...)
+    n_errs = 0
     # Try again with different initial parameter values until curve_fit returns
     while true
         try
-            return curve_fit(model,data_x,data_y, _p_init(rng); lower, upper, kwargs...)
-        catch
-            continue
+            return curve_fit(model, data_x, data_y, p0(); kwargs...)
+        catch e
+            # These errors can happen through bad luck of the initial parameters
+            if e isa DomainError || e isa ArgumentError || e isa InexactError
+                n_errs += 1
+
+                # Keep going as long as the error hasn't happened too many times
+                n_errs < ntries && continue
+
+                # If one of these errors has been thrown too many times,
+                #  it's probably a user-caused ArgumentError
+                @error "curve_fit has errored $(n_errs) times. Giving up."
+            end
+            # Always rethrow any other errors
+            rethrow()
         end
     end
 end
 
-"""
-  `_get_area_diff(endval, params; model=logistic5)`
-
-  Generates the function to be used to calculate the area difference.
-"""
-function _get_area_diff(endval, params; model=logistic5)
-    return area_diff(x) = endval - model(x, params)
+struct AUC{T}
+    auc::T
+    startval::T
+    endval::T
+    domain::Any
 end
 
 """
-  `get_aucs(params; [model=logistic5], [domain=(0,1)])`
+  `get_auc(model=logistic5, params; [domain=(0,1)])`
 
-  Returns the auc, the properly scaled auc, and the start and end values of the `model` given the `params`.
+  Returns an `AUC` struct containing the `auc`, the `startval`, and the `endval`.
+
+  This has not been tested with a different `domain`. Change it at your own risk!
 """
-function get_aucs(params; model=logistic5, domain=(0,1))
+function get_auc(model, params; domain=(0, 1))
     startval = model(domain[1], params)
     endval = model(domain[2], params)
-    area_diff = _get_area_diff(endval, params; model)
-    auc, = quadgk(area_diff, domain[1], domain[2])
-    auc_scaled = auc/(endval-startval)
-    return auc, auc_scaled, startval, endval
+    auc, = quadgk((x) -> endval - model(x, params), domain[1], domain[2])
+    return AUC(auc, startval, endval, domain)
 end
 
+struct MDIndices{T}
+    Δ::T
+    λ::T
+end
 
-export logistic5, fit_model, get_aucs
+"""
+  `get_MD_indices(auc::AUC)`
+
+  Returns an `MDIndices` struct containing the `Δ` and `λ` indices of `auc`.
+"""
+function get_MD_indices(auc::AUC)
+    Δ = auc.endval - auc.startval
+    return MDIndices(Δ, 1 - auc.auc / Δ)
+end
+
+export fit_model, get_auc, get_MD_indices
+
+include("logistic5.jl")
+
+export logistic5, fit_logistic5
+
+## Precompilation
+@setup_workload begin
+    old_or_new = [0, 0, 0, 1, 0, 1, 1, 1]
+    distance = 0:(1/7):1
+
+    @compile_workload begin
+        logistic5_params = fit_logistic5(distance, old_or_new).param
+        auc = get_auc(logistic5_params)
+        mdis = get_MD_indices(auc)
+    end
+end
 
 end # module MDI
