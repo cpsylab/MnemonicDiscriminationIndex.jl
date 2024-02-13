@@ -2,6 +2,14 @@ MDI.jl
 ======
 Package for our new index of mnemonic discrimination
 
+Installation
+------------
+To install this package to you environment, run
+```julia
+]add https://github.com/cpsylab/MDI.jl#v0.2.0
+```
+in the Julia REPL. The `"#v0.2.0"` part is not necessary, but it'll prevent your code from breaking if there are ever any breaking changes to the package.
+
 Basic Usage
 -----------
 
