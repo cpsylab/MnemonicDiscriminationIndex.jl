@@ -1,4 +1,4 @@
-MDI.jl
+MnemonicDiscriminationIndex.jl
 ======
 Package for our new index of mnemonic discrimination
 
@@ -6,7 +6,7 @@ Installation
 ------------
 To install this package to you environment, run
 ```julia
-]add https://github.com/cpsylab/MDI.jl#v0.2.0
+]add https://github.com/cpsylab/MnemonicDiscriminationIndex.jl#v0.2.0
 ```
 in the Julia REPL. The `"#v0.2.0"` part is not necessary, but it'll prevent your code from breaking if there are ever any breaking changes to the package.
 
@@ -15,7 +15,7 @@ Basic Usage
 
 For a workflow similar to the paper using the logistic5, lets assume we have our MST data.
 ```julia
-julia> using MDI
+julia> using MnemonicDiscriminationIndex
 
 julia> old_or_new = [0,0,0,1,0,1,1,1]
 8-element Vector{Int64}:
@@ -48,10 +48,10 @@ julia> logistic5_params = fit_logistic5(distance, old_or_new; rng=StableRNG(123)
 Now, we're ready to calculate the auc and the Δ and λ indices:
 ```julia
 julia> auc = get_auc(logistic5_params)
-MDI.AUC{Float64}(0.44583208733243396, 0.0, 0.9390919680940668, (0, 1))
+MnemonicDiscriminationIndex.AUC{Float64}(0.44583208733243396, 0.0, 0.9390919680940668, (0, 1))
 
 julia> mdis = get_MD_indices(auc)
-MDI.MDIndices{Float64}(0.9390919680940668, 0.5252519428557438)
+MnemonicDiscriminationIndex.MDIndices{Float64}(0.9390919680940668, 0.5252519428557438)
 
 julia> mdis.Δ
 0.9390919680940668
