@@ -1,4 +1,4 @@
-module MDI
+module MnemonicDiscriminationIndex
 
 using Distributions: Uniform
 using LsqFit: curve_fit
@@ -93,4 +93,4 @@ export logistic5, fit_logistic5
     end
 end
 
-end # module MDI
+end # module MnemonicDiscriminationIndex

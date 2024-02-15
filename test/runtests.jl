@@ -1,10 +1,10 @@
-using MDI
+using MnemonicDiscriminationIndex
 using StableRNGs
 using Test
 
 const rtol = 0.001
 
-@testset "MDI.jl" begin
+@testset "MnemonicDiscriminationIndex.jl" begin
     # Define a well-known function for testing
     @. quadratic(x, params) = params[1] * x^2 + params[2] * x + params[3]
 
