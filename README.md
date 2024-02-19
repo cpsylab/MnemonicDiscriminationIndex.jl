@@ -6,9 +6,9 @@ Installation
 ------------
 To install this package to you environment, run
 ```julia
-]add https://github.com/cpsylab/MnemonicDiscriminationIndex.jl#v0.2.0
+julia> ]add MnemonicDiscriminationIndex.jl
 ```
-in the Julia REPL. The `"#v0.2.0"` part is not necessary, but it'll prevent your code from breaking if there are ever any breaking changes to the package.
+in the Julia REPL. To prevent breakage, add a compat entry to the version you install in your environment's `Project.toml` as the API might be improved over time.
 
 Basic Usage
 -----------
