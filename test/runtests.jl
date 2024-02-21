@@ -8,11 +8,16 @@ const rtol = 0.001
     # Define a well-known function for testing
     @. quadratic(x, params) = params[1] * x^2 + params[2] * x + params[3]
 
-    quad_data_x = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-    quad_data_y = [0, 0.005, 0.02, 0.045, 0.08, 0.125, 0.18, 0.245, 0.32, 0.405, 0.5]
+    quad_dissimilarities = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    quad_responses = [0, 0.005, 0.02, 0.045, 0.08, 0.125, 0.18, 0.245, 0.32, 0.405, 0.5]
 
     quad_params =
-        fit_model(quadratic, quad_data_x, quad_data_y, () -> [0.6, 0.1, 0.1]).param
+        fit_model(
+            quadratic,
+            quad_dissimilarities,
+            quad_responses,
+            () -> [0.6, 0.1, 0.1],
+        ).param
     @test all(
         isapprox.(
             quad_params,
@@ -79,8 +84,8 @@ const rtol = 0.001
         end
 
         @testset "fit_logistic5" begin
-            logistic5_data_x = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-            logistic5_data_y = [
+            logistic5_dissimilarities = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+            logistic5_responses = [
                 0.050000000000000044,
                 0.050287907869481896,
                 0.05912258473234089,
@@ -95,7 +100,11 @@ const rtol = 0.001
             ]
 
             logistic5_params =
-                fit_logistic5(logistic5_data_x, logistic5_data_y; rng=StableRNG(123)).param
+                fit_logistic5(
+                    logistic5_dissimilarities,
+                    logistic5_responses;
+                    rng=StableRNG(123),
+                ).param
             @test all(
                 isapprox.(
                     logistic5_params,
