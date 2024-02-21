@@ -6,16 +6,17 @@ using PrecompileTools: @setup_workload, @compile_workload
 using QuadGK: quadgk
 using Random
 
-"""
-  `fit_model(model, dissimilarities, responses, p0; kwargs...)`
+struct MDIResult{T}
+    params::Vector{T}
+    auc::T
+    startval::T
+    endval::T
+    domain::Tuple{T, T}
+    Δ::T
+    λ::T
+end
 
-  Wrapper around `LsqFit`'s `curve_fit` that tries fitting the curve to the `model` until it succeeds.
-
-  `p0` is a function that generates initial parameters relevant for the passed-in `model`.
-
-  The `kwargs` get passed on to `curve_fit`.
-"""
-function fit_model(model, dissimilarities, responses, p0; ntries=10000, kwargs...)
+function _fit_model(model, dissimilarities, responses, p0; ntries=10000, kwargs...)
     n_errs = 0
     # Try again with different initial parameter values until curve_fit returns
     while true
@@ -39,43 +40,28 @@ function fit_model(model, dissimilarities, responses, p0; ntries=10000, kwargs..
     end
 end
 
-struct AUC{T}
-    auc::T
-    startval::T
-    endval::T
-    domain::Any
-end
-
 """
-  `get_auc(model=logistic5, params; [domain=(0,1)])`
+  `fit_model(model, dissimilarities, responses, p0; [kwargs...])`
 
-  Returns an `AUC` struct containing the `auc`, the `startval`, and the `endval`.
+  Fit the model to the data and return an `MDIResult` struct.
 
-  This has not been tested with a different `domain`. Change it at your own risk!
+  `p0` is a function that generates initial parameters relevant for the passed-in `model`.
+
+  The `kwargs` get passed on to `curve_fit`.
 """
-function get_auc(model, params; domain=(0, 1))
+function fit_model(model, dissimilarities, responses, p0; domain=(0, 1), kwargs...)
+    params = _fit_model(model, dissimilarities, responses, p0; kwargs...).param
+
     startval = model(domain[1], params)
     endval = model(domain[2], params)
     auc, = quadgk((x) -> endval - model(x, params), domain[1], domain[2])
-    return AUC(auc, startval, endval, domain)
+    Δ = endval - startval
+    λ = 1 - auc / Δ
+
+    return MDIResult(params, auc, startval, endval, float.(domain), Δ, λ)
 end
 
-struct MDIndices{T}
-    Δ::T
-    λ::T
-end
-
-"""
-  `get_MD_indices(auc::AUC)`
-
-  Returns an `MDIndices` struct containing the `Δ` and `λ` indices of `auc`.
-"""
-function get_MD_indices(auc::AUC)
-    Δ = auc.endval - auc.startval
-    return MDIndices(Δ, 1 - auc.auc / Δ)
-end
-
-export fit_model, get_auc, get_MD_indices
+export fit_model, MDIResult
 
 include("logistic5.jl")
 
@@ -87,9 +73,7 @@ export logistic5, fit_logistic5
     dissimilarities = 0:(1/7):1
 
     @compile_workload begin
-        logistic5_params = fit_logistic5(dissimilarities, old_or_new).param
-        auc = get_auc(logistic5_params)
-        mdis = get_MD_indices(auc)
+        logistic5_results = fit_logistic5(dissimilarities, old_or_new)
     end
 end
 

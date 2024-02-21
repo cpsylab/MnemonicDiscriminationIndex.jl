@@ -5,7 +5,7 @@ Package for our new index of mnemonic discrimination
 Installation
 ------------
 To install this package to you environment, run
-```julia
+```julia-repl
 julia> ]add MnemonicDiscriminationIndex.jl
 ```
 in the Julia REPL. To prevent breakage, add a compat entry to the version you install in your environment's `Project.toml` as the API might be improved over time.
@@ -14,7 +14,7 @@ Basic Usage
 -----------
 
 For a workflow similar to the paper using the logistic5, lets assume we have our MST data.
-```julia
+```julia-repl
 julia> using MnemonicDiscriminationIndex
 
 julia> old_or_new = [0,0,0,1,0,1,1,1]
@@ -33,34 +33,25 @@ julia> distance = 0:(1/7):1
 ```
 
 Then, we fit our data to the logistic5 curve (using a reproducible rng) and save the parameters:
-```julia
+```julia-repl
 julia> using StableRNGs
 
-julia> logistic5_params = fit_logistic5(distance, old_or_new; rng=StableRNG(123)).param
-5-element Vector{Float64}:
- 0.0
- 2.311177095326278
- 0.9236730069589213
- 1.0
- 3.546302574580187
+julia> logistic5_results = fit_logistic5(distance, old_or_new; rng=StableRNG(123));
 ```
 
-Now, we're ready to calculate the auc and the Δ and λ indices:
-```julia
-julia> auc = get_auc(logistic5_params)
-MnemonicDiscriminationIndex.AUC{Float64}(0.44583208733243396, 0.0, 0.9390919680940668, (0, 1))
+Now, we have an MDIResult object with all the information needed:
+```julia-repl
+julia> logistic5_results.auc
+0.44583208733243396
 
-julia> mdis = get_MD_indices(auc)
-MnemonicDiscriminationIndex.MDIndices{Float64}(0.9390919680940668, 0.5252519428557438)
-
-julia> mdis.Δ
+julia> logistic5_results.Δ
 0.9390919680940668
 
-julia> mdis.λ
+julia> logistic5_results.λ
 0.5252519428557438
 ```
 
-To fit to a different function than `logistic5`, check out the docstrings for `fit_model` and `get_auc` by calling `?fit_model`, and `?get_auc` in the REPL.
+To fit to a different function than `logistic5`, check out the docstrings for `fit_model` by calling `?fit_model` in the REPL.
 
 Paper
 -----

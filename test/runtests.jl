@@ -11,29 +11,22 @@ const rtol = 0.001
     quad_dissimilarities = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
     quad_responses = [0, 0.005, 0.02, 0.045, 0.08, 0.125, 0.18, 0.245, 0.32, 0.405, 0.5]
 
-    quad_params =
-        fit_model(
-            quadratic,
-            quad_dissimilarities,
-            quad_responses,
-            () -> [0.6, 0.1, 0.1],
-        ).param
+    quad_res =
+        fit_model(quadratic, quad_dissimilarities, quad_responses, () -> [0.6, 0.1, 0.1])
     @test all(
         isapprox.(
-            quad_params,
+            quad_res.params,
             [0.5000000000000945, -9.991904006257049e-14, 1.7089768102995267e-14];
             rtol,
         ),
     )
 
-    quad_auc = get_auc(quadratic, quad_params)
-    @test isapprox(quad_auc.auc, 0.33333333333334636; rtol)
-    @test isapprox(quad_auc.startval, 1.7091570000361224e-14; rtol)
-    @test isapprox(quad_auc.endval, 0.5000000000000117; rtol)
+    @test isapprox(quad_res.auc, 0.33333333333334636; rtol)
+    @test isapprox(quad_res.startval, 1.7091570000361224e-14; rtol)
+    @test isapprox(quad_res.endval, 0.5000000000000117; rtol)
 
-    quad_mdis = get_MD_indices(quad_auc)
-    @test isapprox(quad_mdis.Δ, 0.49999999999999456; rtol)
-    @test isapprox(quad_mdis.λ, 0.33333333333330006; rtol)
+    @test isapprox(quad_res.Δ, 0.49999999999999456; rtol)
+    @test isapprox(quad_res.λ, 0.33333333333330006; rtol)
 
     @testset "logistic5" begin
         @testset "logistic5" begin
@@ -99,15 +92,14 @@ const rtol = 0.001
                 0.9227272727272727,
             ]
 
-            logistic5_params =
-                fit_logistic5(
-                    logistic5_dissimilarities,
-                    logistic5_responses;
-                    rng=StableRNG(123),
-                ).param
+            logistic5_res = fit_logistic5(
+                logistic5_dissimilarities,
+                logistic5_responses;
+                rng=StableRNG(123),
+            )
             @test all(
                 isapprox.(
-                    logistic5_params,
+                    logistic5_res.params,
                     [
                         0.050000000000001696,
                         5.000000000000355,
@@ -119,14 +111,12 @@ const rtol = 0.001
                 ),
             )
 
-            auc = get_auc(logistic5_params)
-            @test isapprox(auc.auc, 0.44682346066959855; rtol)
-            @test isapprox(auc.startval, 0.05000000000000171; rtol)
-            @test isapprox(auc.endval, 0.922727272727276; rtol)
+            @test isapprox(logistic5_res.auc, 0.44682346066959855; rtol)
+            @test isapprox(logistic5_res.startval, 0.05000000000000171; rtol)
+            @test isapprox(logistic5_res.endval, 0.922727272727276; rtol)
 
-            mdis = get_MD_indices(auc)
-            @test isapprox(mdis.Δ, 0.8727272727272742; rtol)
-            @test isapprox(mdis.λ, 0.48801478464941916; rtol)
+            @test isapprox(logistic5_res.Δ, 0.8727272727272742; rtol)
+            @test isapprox(logistic5_res.λ, 0.48801478464941916; rtol)
         end
     end
 end
