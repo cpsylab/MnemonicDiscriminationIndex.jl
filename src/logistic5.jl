@@ -25,20 +25,20 @@ end
 p0_logistic5(rng) = () -> _p0_logistic5(rng)
 
 """
-  `fit_logistic5(data_x, data_y;lower=Float64[0,0,0,0,0], upper=Float64[1,Inf,1,1,Inf], rng=Random.default_rng(), kwargs...)`
+  `fit_logistic5(distances, responses; lower=Float64[0,0,0,0,0], upper=Float64[1,Inf,1,1,Inf], rng=Random.default_rng(), kwargs...)`
 
   Wrapper around `fit_model` for the `logistic5` function
 
   The `kwargs` get passed on to `curve_fit`.
 """
 fit_logistic5(
-    data_x,
-    data_y;
+    distances,
+    responses;
     lower=Float64[0, 0, 0, 0, 0],
     upper=Float64[1, Inf, 1, 1, Inf],
     rng=Random.default_rng(),
     kwargs...,
-) = fit_model(logistic5, data_x, data_y, p0_logistic5(rng); lower, upper, kwargs...)
+) = fit_model(logistic5, distances, responses, p0_logistic5(rng); lower, upper, kwargs...)
 
 # Use the logistic5 function when no model is specified
 get_auc(params; kwargs...) = get_auc(logistic5, params; kwargs...)
