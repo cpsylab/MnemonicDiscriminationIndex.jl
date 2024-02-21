@@ -39,6 +39,3 @@ fit_logistic5(
     rng=Random.default_rng(),
     kwargs...,
 ) = fit_model(logistic5, distances, responses, p0_logistic5(rng); lower, upper, kwargs...)
-
-# Use the logistic5 function when no model is specified
-get_auc(params; kwargs...) = get_auc(logistic5, params; kwargs...)
