@@ -28,7 +28,7 @@ julia> old_or_new = [0,0,0,1,0,1,1,1]
  1
  1
 
-julia> distance = 0:(1/7):1
+julia> dissimilarity = 0:(1/7):1
 0.0:0.14285714285714285:1.0
 ```
 
@@ -36,7 +36,7 @@ Then, we fit our data to the logistic5 curve (using a reproducible rng) and save
 ```julia-repl
 julia> using StableRNGs
 
-julia> logistic5_results = fit_logistic5(distance, old_or_new; rng=StableRNG(123));
+julia> logistic5_results = fit_logistic5(dissimilarity, old_or_new; rng=StableRNG(123));
 ```
 
 Now, we have an MDIResult object with all the information needed:
