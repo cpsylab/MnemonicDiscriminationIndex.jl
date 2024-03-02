@@ -1,5 +1,10 @@
 MnemonicDiscriminationIndex.jl
 ======
+[pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/M/MnemonicDiscriminationIndex.svg
+[pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/M/MnemonicDiscriminationIndex.html
+
+[![PkgEval][pkgeval-img]][pkgeval-url]
+
 Package for our new index of mnemonic discrimination
 
 Installation
