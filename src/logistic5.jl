@@ -25,7 +25,8 @@ end
 p0_logistic5(rng) = () -> _p0_logistic5(rng)
 
 """
-  `fit_logistic5(dissimilarities, responses; lower=Float64[0,0,0,0,0], upper=Float64[1,Inf,1,1,Inf], rng=Random.default_rng(), kwargs...)`
+  `fit_logistic5(dissimilarities, responses; lower=Float64[0,0,0,0,0], upper=Float64[1,Inf,1,1,Inf], rng=Random.default_rng(), domain=(0,1), kwargs...)`
+  `fit_logistic5(params; domain=(0,1))`
 
   Wrapper around `fit_model` for the `logistic5` function
 
@@ -38,4 +39,13 @@ fit_logistic5(
     upper=Float64[1, Inf, 1, 1, Inf],
     rng=Random.default_rng(),
     kwargs...,
-) = fit_model(logistic5, dissimilarities, responses, p0_logistic5(rng); lower, upper, kwargs...)
+) = fit_model(
+    logistic5,
+    dissimilarities,
+    responses,
+    p0_logistic5(rng);
+    lower,
+    upper,
+    kwargs...,
+)
+fit_logistic5(params; kwargs...) = fit_model(logistic5, params; kwargs...)

@@ -40,6 +40,8 @@ function _fit_model(model, dissimilarities, responses, p0; ntries=10000, kwargs.
     end
 end
 
+const DOMAIN = (0, 1)
+
 """
   `fit_model(model, dissimilarities, responses, p0; [kwargs...])`
 
@@ -49,9 +51,12 @@ end
 
   The `kwargs` get passed on to `curve_fit`.
 """
-function fit_model(model, dissimilarities, responses, p0; domain=(0, 1), kwargs...)
+function fit_model(model, dissimilarities, responses, p0; domain=DOMAIN, kwargs...)
     params = _fit_model(model, dissimilarities, responses, p0; kwargs...).param
+    return fit_model(model, params; domain)
+end
 
+function fit_model(model, params; domain=DOMAIN)
     startval = model(domain[1], params)
     endval = model(domain[2], params)
     auc, = quadgk((x) -> endval - model(x, params), domain[1], domain[2])
