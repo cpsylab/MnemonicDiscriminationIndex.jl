@@ -6,12 +6,12 @@ using PrecompileTools: @setup_workload, @compile_workload
 using QuadGK: quadgk
 using Random
 
-struct MDIResult{T}
+struct MDIResult{T,D}
     params::Vector{T}
     auc::T
     startval::T
     endval::T
-    domain::Tuple{T, T}
+    domain::Tuple{D, D}
     Δ::T
     λ::T
 end
