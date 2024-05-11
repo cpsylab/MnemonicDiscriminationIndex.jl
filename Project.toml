@@ -1,7 +1,7 @@
 name = "MnemonicDiscriminationIndex"
 uuid = "4ce081f7-88d2-45e6-980f-ae8df33f05ea"
 authors = ["Christian Guinard", "Simon Léger"]
-version = "0.4.2"
+version = "0.4.3"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"

@@ -43,13 +43,15 @@ end
 const DOMAIN = (0, 1)
 
 """
-  `fit_model(model, dissimilarities, responses, p0; [kwargs...])`
+    fit_model(model, dissimilarities, responses, p0; [domain=(0,1), kwargs...])
 
-  Fit the model to the data and return an `MDIResult` struct.
+Fit the model to the data and return an `MDIResult` struct.
 
-  `p0` is a function that generates initial parameters relevant for the passed-in `model`.
+`p0` is a function that generates initial parameters relevant for the passed-in `model`.
 
-  The `kwargs` get passed on to `curve_fit`.
+The `domain` argument is a tuple with the lowest and highest values of dissimilarity. Should not typically be changed.
+
+The `kwargs` get passed on to `curve_fit`.
 """
 function fit_model(model, dissimilarities, responses, p0; domain=DOMAIN, kwargs...)
     params = _fit_model(model, dissimilarities, responses, p0; kwargs...).param
