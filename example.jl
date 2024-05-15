@@ -14,6 +14,7 @@ begin
 	using LaTeXStrings
 	using MnemonicDiscriminationIndex
 	using Plots
+	using Plots: px
 	using Random
 	using StableRNGs
 md"""
@@ -24,10 +25,11 @@ end
 # ╔═╡ 459bd65f-a998-44dc-9783-9621da8d4323
 # All RNG-related stuff in the same cell
 begin
-	seed = 17
-	p1rng = StableRNG(seed)
-	p2rng = StableRNG(seed+1)
-	patrng = StableRNG(seed+2)
+	SEED = 294
+	
+	patrng = StableRNG(SEED)
+	p1rng = StableRNG(SEED+1)
+	p2rng = StableRNG(SEED+2)
 end;
 
 # ╔═╡ 01e2de82-c72b-4932-992e-286b7101ef76
@@ -38,16 +40,7 @@ md"""
 
 # ╔═╡ ca71b58f-81d6-404b-afb0-f68c65e5b0bc
 begin
-	function flattenmatvec(matvec)
-		flatmat = Matrix{Bool}(undef, length(first(matvec)), length(matvec))
-	
-		for (i,mat) in enumerate(matvec)
-			flatmat[:,i] .= mat[:]
-		end
-		return flatmat
-	end
-	scale(mat) = mat ./ maximum(mat)
-	flipbit(bit::Bool, flip::Bool) = flip ? !bit : bit
+	scale(x) = x ./ maximum(x)
 	
 	# Smooth out a probablilty value
 	function smooth_p(p, mod=0.1)
@@ -67,21 +60,24 @@ md"""
 begin
 	NOBS = 192
 	OBDIMS = 10,10
-	base = rand(patrng,Bool, OBDIMS)
-	stimuli = [copy(base) for _ in 1:NOBS];
+	basepat = rand(patrng, Bool, OBDIMS)
+	stimuli = [copy(basepat) for _ in 1:NOBS];
 	
 	# Flip more and more bits of the original image
 	for i in 2:NOBS
-		flip = rand(patrng,Bernoulli(i/NOBS), OBDIMS)
-		stimuli[i] .= flipbit.(stimuli[i],flip)
+		flip = rand(patrng, Bernoulli(i/NOBS), OBDIMS)
+		stimuli[i] .= xor.(stimuli[i],flip)
 	end
 
 	# Shuffle so the dataset isn't just progressively different stimuli
 	stimuli = shuffle(patrng, stimuli)
 	
 	#Flatten for easier manipulation
-	flatstim = flattenmatvec(stimuli)
-end;
+	flatstim = mapreduce(A->A[:], hcat, stimuli)
+end
+
+# ╔═╡ 798e5d8e-954b-4e6c-9d34-e0831159a68b
+flatstim[1:2,:]
 
 # ╔═╡ 6253db95-1a12-4fbc-845f-8820df5be624
 # Uncomment one of these to see a visual representation of the data
@@ -112,14 +108,12 @@ md"""
 dists = let
 	# Calculate the pairwise distance between the study and test sets
 	distsmat = pairwise(Hamming(), study, test)
-	
-	# Scale those values between 0 and 1
-	# scaleddistsmat = scale(distsmat)
-	scaleddistsmat = distsmat
 
 	# Keep only the minimum value as the distance between a stimulus and the study set
-	# minimum.(eachcol(scaleddistsmat))
-	scale(minimum.(eachcol(scaleddistsmat)))
+	minvals = minimum.(eachcol(distsmat))
+
+	# Scale between 0 and 1
+	minvals ./ maximum(minvals)
 end;
 
 # ╔═╡ 3187f171-72c1-4801-b358-6cf57ce1958f
@@ -132,33 +126,21 @@ md"""
 """
 
 # ╔═╡ 2665cf9d-f207-419c-a82f-31e825e990de
-p1_params = [0.095526652, 6.096173577, 1, 0.801516895, 159.0535469]
+p1params = [0.095526652, 6.096173577, 1, 0.801516895, 159.0535469]
 
 # ╔═╡ b8adc598-e74d-425f-965d-fa629df70ef6
-p2_params = [0.10048034211517706, 2.462195647716945, 1.0, 0.8394539899329447, 65.98567295809723]
+p2params = [0.10048034211517706, 2.462195647716945, 1.0, 0.8394539899329447, 65.98567295809723]
 
 # ╔═╡ 0174d898-d129-4335-8614-499a6cf442c3
 md"""
 ##### Generate the simulated responses and the MDIResult for the expected results using our parameters
 """
 
-# ╔═╡ 3909f284-4e95-43f1-911b-3c9b5a2e1d75
-function genresps(params, dists; rng=Random.default_rng())
-	# Get the MDIResult for the expected parameters
-	expMDI = fit_logistic5(params)
-
-	# Generate some random responses with the probability of answering new 
-	#   being directly correlated to the distance
-	simresults = [rand(rng,Bernoulli(smooth_p.(logistic5(d, params)))) for d in dists]
-	
-	return simresults, expMDI
-end
-
 # ╔═╡ 81a5f8a7-3567-489a-b040-240d1131acc5
-p1simresps, p1expected = genresps(p1_params, dists; rng=p1rng)
+p1simresps = [rand(p1rng, Bernoulli(logistic5(d, p1params))) for d in dists]
 
 # ╔═╡ 05f2aec8-a567-4a7b-a8e1-e897c5ad6774
-p2simresps, p2expected = genresps(p2_params, dists; rng=p2rng)
+p2simresps = [rand(p2rng, Bernoulli(logistic5(d, p2params))) for d in dists]
 
 # ╔═╡ 440ae320-ce3a-4e63-873b-7ea1532cb997
 md"""
@@ -168,10 +150,10 @@ md"""
 """
 
 # ╔═╡ 6d52856c-81bb-4e7f-82d5-6b28101dfbfd
-p1simulated = fit_logistic5(dists, p1simresps; rng=p1rng)
+p1results = fit_logistic5(dists, p1simresps; rng=p1rng)
 
 # ╔═╡ 2e73701c-d3cb-4bc0-928a-468fc1aaabba
-p2simulated = fit_logistic5(dists, p2simresps; rng=p2rng)
+p2results = fit_logistic5(dists, p2simresps; rng=p2rng)
 
 # ╔═╡ f5f8f88e-b4d2-44bb-a6a6-f0b0c33d1f15
 md"""
@@ -193,10 +175,19 @@ function plotcurves(dists, simresults, simMDI, expMDI;title="")
 end
 
 # ╔═╡ eefde2fd-6847-4357-a73c-c0166f3f561e
-p1plot = plotcurves(dists, p1simresps, p1simulated, p1expected; title="p1")
+begin
+	p1expected = fit_logistic5(p1params)
+	p1plot = plotcurves(dists, p1simresps, p1results, p1expected; title="Simulated participant 1")
+end
 
-# ╔═╡ b9693cc6-5903-4cec-af2b-5c2eda52b4df
-p2plot = plotcurves(dists, p2simresps, p2simulated, p2expected; title="p2")
+# ╔═╡ fda70c22-c495-4e32-998d-d7a9512c364d
+begin
+	p2expected = fit_logistic5(p2params)
+	p2plot = plotcurves(dists, p2simresps, p2results, p2expected; title="Simulated participant 2")
+end
+
+# ╔═╡ 9d27dd15-efe5-4c93-ac5c-31a11ff0220d
+plot(p1plot, p2plot, layout=(1,2), size=(1200, 400), left_margin=5px)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2168,12 +2159,13 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─fa2065e4-0eff-11ef-1201-233fc348cb58
+# ╠═fa2065e4-0eff-11ef-1201-233fc348cb58
 # ╠═459bd65f-a998-44dc-9783-9621da8d4323
 # ╟─01e2de82-c72b-4932-992e-286b7101ef76
 # ╠═ca71b58f-81d6-404b-afb0-f68c65e5b0bc
 # ╟─8514f520-1a65-4756-858a-cecf8d584940
 # ╠═17677a76-500c-47e6-b0e6-4b70e9cd5145
+# ╠═798e5d8e-954b-4e6c-9d34-e0831159a68b
 # ╠═6253db95-1a12-4fbc-845f-8820df5be624
 # ╟─71567e4b-dcbd-40dd-873e-debde3a92faa
 # ╠═5ccfa15c-7360-41fd-a3e9-3ebd8b6d436d
@@ -2185,7 +2177,6 @@ version = "1.4.1+1"
 # ╠═2665cf9d-f207-419c-a82f-31e825e990de
 # ╠═b8adc598-e74d-425f-965d-fa629df70ef6
 # ╟─0174d898-d129-4335-8614-499a6cf442c3
-# ╟─3909f284-4e95-43f1-911b-3c9b5a2e1d75
 # ╠═81a5f8a7-3567-489a-b040-240d1131acc5
 # ╠═05f2aec8-a567-4a7b-a8e1-e897c5ad6774
 # ╟─440ae320-ce3a-4e63-873b-7ea1532cb997
@@ -2194,6 +2185,7 @@ version = "1.4.1+1"
 # ╟─f5f8f88e-b4d2-44bb-a6a6-f0b0c33d1f15
 # ╟─046dea09-4d26-462e-b0fb-ca4e2bbbc94e
 # ╠═eefde2fd-6847-4357-a73c-c0166f3f561e
-# ╠═b9693cc6-5903-4cec-af2b-5c2eda52b4df
+# ╠═fda70c22-c495-4e32-998d-d7a9512c364d
+# ╠═9d27dd15-efe5-4c93-ac5c-31a11ff0220d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
