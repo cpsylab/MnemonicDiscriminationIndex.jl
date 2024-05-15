@@ -4,9 +4,9 @@ using Distributions: Uniform
 using LsqFit: curve_fit
 using PrecompileTools: @setup_workload, @compile_workload
 using QuadGK: quadgk
-using Random
+using Random: Random
 
-struct MDIResult{T,D}
+struct MDIResult{T, D}
     params::Vector{T}
     auc::T
     startval::T
