@@ -9,6 +9,7 @@ using Random: Random
 struct MDIResult{T, D}
     params::Vector{T}
     auc::T
+    auc_err::T
     startval::T
     endval::T
     domain::Tuple{D, D}
@@ -61,11 +62,11 @@ end
 function fit_model(model, params; domain=DOMAIN)
     startval = model(domain[1], params)
     endval = model(domain[2], params)
-    auc, = quadgk((x) -> endval - model(x, params), domain[1], domain[2])
+    auc, auc_err = quadgk((x) -> endval - model(x, params), domain[1], domain[2])
     Δ = endval - startval
     λ = 1 - auc / Δ
 
-    return MDIResult(params, auc, startval, endval, float.(domain), Δ, λ)
+    return MDIResult(params, auc, auc_err, startval, endval, float.(domain), Δ, λ)
 end
 
 export fit_model, MDIResult

@@ -112,6 +112,7 @@ const rtol = 0.001
             )
 
             @test isapprox(logistic5_res.auc, 0.44682346066959855; rtol)
+            @test isapprox(logistic5_res.auc_err, 4.559608704490792e-9; rtol)
             @test isapprox(logistic5_res.startval, 0.05000000000000171; rtol)
             @test isapprox(logistic5_res.endval, 0.922727272727276; rtol)
 
