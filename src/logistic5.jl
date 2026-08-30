@@ -34,7 +34,7 @@ Wrapper around `fit_model` for the `logistic5` function
 # Arguments
 - `domain=(0,1)`: the lowest and highest values of dissimilarity. Should not typically be changed.
 - `rng=Random.default_rng()`: the `rng` to be used to generate initial values for the curve fitting.
-- `lower=[0,0,0,0,0]`: the lower bounds for each parameter.
+- `lower=[0,0,1e-4,0,0]`: the lower bounds for each parameter.
 - `upper=[1,Inf,1,1,Inf]`: the upper bounds for each parameter.
 - `kwargs`: any other keyword argument will be passed on to the curve fitting function.
 
@@ -43,7 +43,7 @@ The `kwargs` get passed on to `curve_fit`.
 fit_logistic5(
     dissimilarities,
     responses;
-    lower=Float64[0, 0, 0, 0, 0],
+    lower=Float64[0, 0, 0.0001, 0, 0],
     upper=Float64[1, Inf, 1, 1, Inf],
     rng=Random.default_rng(),
     kwargs...,
