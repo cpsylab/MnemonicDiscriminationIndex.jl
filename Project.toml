@@ -3,6 +3,9 @@ uuid = "4ce081f7-88d2-45e6-980f-ae8df33f05ea"
 authors = ["Christian Guinard", "Simon Léger"]
 version = "0.4.6"
 
+[workspace]
+projects = ["test"]
+
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"
@@ -16,12 +19,4 @@ LsqFit = "0.15, 0.16"
 PrecompileTools = "1"
 QuadGK = "2"
 Random = "1"
-StableRNGs = "1"
 julia = "1.6"
-
-[extras]
-StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test", "StableRNGs"]

@@ -1,0 +1,7 @@
+[deps]
+MnemonicDiscriminationIndex = "4ce081f7-88d2-45e6-980f-ae8df33f05ea"
+StableRNGs = "860ef19b-820b-49d6-a774-d7a799459cd3"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+StableRNGs = "1"
